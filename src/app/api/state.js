@@ -4,11 +4,12 @@
 
 let isOpen = false;
 
+// Return a frozen object so callers cannot mutate the returned `result`.
 export function getState() {
-  return { isOpen };
+  return Object.freeze({ isOpen });
 }
 
 export function toggleState() {
   isOpen = !isOpen;
-  return { isOpen };
+  return Object.freeze({ isOpen });
 }
