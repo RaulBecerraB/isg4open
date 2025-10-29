@@ -15,7 +15,7 @@ export async function GET(req) {
   // Basic auth required to toggle
   const auth = req.headers.get('authorization');
   if (!isValidBasic(auth)) {
-    return new Response('Unauthorized', { status: 401, headers: { ...CORS_HEADERS, 'WWW-Authenticate': 'Basic realm="G4 Toggle"' } });
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
   }
 
   const result = toggleState();
