@@ -1,12 +1,17 @@
 // CORS and IP allowlist helper
 const ALLOWED = (process.env.ALLOWED_IPS || '').split(',').map(s => s.trim()).filter(Boolean);
 
-export function buildCorsHeaders(originAllowed = '*') {
-  return {
-    'Access-Control-Allow-Origin': originAllowed,
+export function buildCorsHeaders(req) {
+  // Do not use wildcard. Only echo the incoming Origin header when the IP is allowed.
+  const origin = req && req.headers ? (req.headers.get('origin') || '') : '';
+  const headers = {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
+  if (origin && isIpAllowed(req)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+  return headers;
 }
 
 export function isIpAllowed(req) {
