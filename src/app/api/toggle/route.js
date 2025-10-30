@@ -1,26 +1,26 @@
 import { toggleState } from '../state';
 import { isValidBasic } from '../_auth';
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { buildCorsHeaders, isIpAllowed } from '../_cors';
 
 export async function OPTIONS(req) {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+  return new Response(null, { status: 204, headers: buildCorsHeaders() });
 }
 
 export async function GET(req) {
+  // IP allowlist
+  if (!isIpAllowed(req)) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...buildCorsHeaders(), 'Content-Type': 'application/json' } });
+  }
+
   // Basic auth required to toggle
   const auth = req.headers.get('authorization');
   if (!isValidBasic(auth)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...buildCorsHeaders(), 'Content-Type': 'application/json' } });
   }
 
   const result = toggleState();
   return new Response(JSON.stringify(result), {
     status: 200,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    headers: { ...buildCorsHeaders(), 'Content-Type': 'application/json' },
   });
 }
